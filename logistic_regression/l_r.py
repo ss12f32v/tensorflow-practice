@@ -50,7 +50,7 @@ with tf.Session() as sess:
 			#sess.run([optimizer, loss], feed_dict={X: X_batch, Y:Y_batch})
 			sess.run(optimizer, feed_dict={X: X_batch, Y:Y_batch})
 
-	#w_value , b_value = sess.run([w,b])
+	#w_value , b_value  = sess.run([w,b])
 	#print(w_value, b_value)
 	
 
