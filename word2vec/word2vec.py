@@ -19,10 +19,13 @@ SKIP_STEP = 2000 # how many steps to skip before reporting the loss
 
 
 def word2vec(batch_gen):
+
+	global_step = tf.Variable(0, dtype=tf.int32, trainable=False, name='global_step')
 	# step 1-1. Instead of using hot vector , input the index of the words
 	with tf.name_scope("data"):
 		center_words = tf.placeholder(tf.int32, shape=[BATCH_SIZE], name='center_words')
 		target_words = tf.placeholder(tf.int32, shape=[BATCH_SIZE,1], name='target_words')
+		# Notice:target_words is the target classes. Rank must equal 2
 
 	# step 1-2. Define the weight ( the embedding matrix )
 	# Word is represent of the each row of the Weight
@@ -50,10 +53,11 @@ def word2vec(batch_gen):
 											num_sampled=NUM_SAMPLED,
 											num_classes=VOCAB_SIZE), name='loss')
 	# step 1-5. Define optimizer
-	optimizer = tf.train.GradientDescentOptimizer(LEARNING_RATE).minimize(loss)
+	
+	optimizer = tf.train.GradientDescentOptimizer(LEARNING_RATE).minimize(loss,global_step=global_step)
+	saver = tf.train.Saver() # defaults to saving all variables
 
 	init = tf.global_variables_initializer()
-
 	#Phase2 start 
 	# step 2-1.
 	with tf.Session() as sess:
@@ -66,6 +70,7 @@ def word2vec(batch_gen):
 			average_loss += loss_batch
 			if (index + 1) % 2000 == 0:
 				print('Average loss at step {}: {:5.1f}'.format(index + 1, average_loss / (index + 1)))
+				saver.save(sess, './checkpoints/skip-gram', global_step=global_step)
 		writer.close()
 
 
